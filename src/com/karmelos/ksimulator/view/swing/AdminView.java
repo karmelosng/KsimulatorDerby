@@ -33,7 +33,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 /**
@@ -190,8 +189,13 @@ public class AdminView extends javax.swing.JFrame {
         checkBox = new com.karmelos.swing.CheckBoxList();
         menuBar = new javax.swing.JMenuBar();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("KSimulator Administration");
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         listOfUsers.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Select a User" }));
         listOfUsers.addItemListener(new java.awt.event.ItemListener() {
@@ -1170,9 +1174,7 @@ public class AdminView extends javax.swing.JFrame {
             System.out.println(set.size());
             for (int i = 0; i < listCom.size(); i++) {
                 if (set.contains(listCom.get(i))) {
-                    System.out.println(listCom.get(i) + " is a suc");
                     checkBox.addCheckBoxListSelectedValue(listCom.get(i), true);
-//          checkBox.setSelectedValue(listCom, false);
                 }
             }
 //            checkBox.updateUI();
@@ -1250,6 +1252,16 @@ public class AdminView extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_createComponentButtActionPerformed
 
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        OkCancelOption okcancel = new OkCancelOption(this, "Are you sure you want to exit?");
+        okcancel.setLabel1("Please make sure you save all changes. Do you still want to exit?");
+        okcancel.setSize(400, 150);
+        boolean response = okcancel.showDialog();
+        if (response) {
+            System.exit(0);
+        }
+    }//GEN-LAST:event_formWindowClosing
+
     private void fillUser(SimUser user) {
         usernameText.setText(user.getUsername());
 //        passText.setText(user.getPassword());
@@ -1282,9 +1294,10 @@ public class AdminView extends javax.swing.JFrame {
             componentOverlay.setText(new Integer(component.getOverlayOrder()).toString());
             compDescription.setText(component.getDescription());
             componentStarter.setSelected(component.isStarter());
+            System.out.println(component + " is starter is " + component.isStarter());
             File file = new File("KSim3DResource" + "\\obj_" + component.getId() + ".obj");
             objText.setText(file.getPath());
-            file = new File("KSim3DResource" + "\\mtl_" + component.getId() + ".mtl");
+            file = new File("KSim3DResource" + "\\mat_" + component.getId() + ".mtl");
             mtlText.setText(file.getPath());
             file = new File("KSim3DResource" + "\\img_" + component.getId() + ".jpg");
             imgText.setText(file.getPath());
@@ -1326,7 +1339,7 @@ public class AdminView extends javax.swing.JFrame {
             newUser = new SimUser();
         } else {
             if (listOfUsers.getSelectedIndex() == 0) {
-                OkOption ok = new OkOption(this, "You must select a user to edit");
+                OkOption ok = new OkOption(this, "Select User");
                 ok.setLabel1("You must select a user to edit");
                 ok.showDialog();
                 return;
@@ -1339,47 +1352,57 @@ public class AdminView extends javax.swing.JFrame {
             newUser.setLastName(lastText.getText());
             newUser.setMiddleName(middleText.getText());
             if (!passText.getText().isEmpty()) {
-                if(listOfUsers.isEnabled() ==true){
-                OkCancelOption okcancel = new OkCancelOption(this, "Are you sure?");
-                okcancel.setLabel1("Are you sure to replace password");
-                boolean response = okcancel.showDialog();
-                if(response){
-                newUser.setPassword(SimAdminController.passwordHasher(passText.getText()));
+                if (listOfUsers.isEnabled() == true) {
+                    OkCancelOption okcancel = new OkCancelOption(this, "Are you sure?");
+                    okcancel.setLabel1("Are you sure to replace password");
+                    boolean response = okcancel.showDialog();
+                    if (response) {
+                        newUser.setPassword(SimAdminController.passwordHasher(passText.getText()));
+                    }
                 }
-                }
                 newUser.setPassword(SimAdminController.passwordHasher(passText.getText()));
-                
+
             }
             newUser.setUsername(usernameText.getText());
             if (listOfUsers.isEnabled() == false) {
                 adminController.saveObject(newUser);
                 listOfUsers.addItem(newUser);
+                OkOption ok = new OkOption(this, "Saved");
+                ok.setLabel1("New user saved");
+                ok.showDialog();
+                listOfUsers.setSelectedItem(newUser);
+                listOfUsers.setEnabled(true);
+                createUser.setText("Create User");
                 isSave = false;
-                System.out.println("saved");
             } else {
                 OkCancelOption okCancel = new OkCancelOption(this, "Are you sure of these changes?");
                 okCancel.setLabel1("Are you sure of these changes?");
                 boolean response = okCancel.showDialog();
                 if (response) {
                     adminController.mergeObject(newUser);
-                    System.out.println("merged");
+                    OkOption ok = new OkOption(this, "Updated");
+                    ok.setLabel1("User updated");
+                    ok.showDialog();
                 }
             }
         } else {
             newUser = null;
             valid.setVisible(true);
+            usernameLabel.setForeground(Color.red);
         }
     }
 
     private void validateUser() {
         valid.setVisible(false);
-        if (usernameText.getText().matches("[a-zA-Z0-9_]+")) {
+        usernameLabel.setForeground(Color.black);
+        valid.setVisible(false);
+        if (usernameText.getText().matches("[a-zA-Z]+[_0-9a-zA-Z]*")) {
             isvalidate = true;
         }
 //        if (passText.getText().toString().matches("[a-zA-Z0-9_]")) {
 //            isvalidate = true;
 //        }
-        if (!passText.getText().isEmpty()) {
+        if (!passText.getText().isEmpty() && !passText.equals("")) {
             if (!passText.getText().equals(confirmPassText.getText())) {
                 isvalidate = false;
             }
@@ -1387,9 +1410,14 @@ public class AdminView extends javax.swing.JFrame {
     }
 
     private void validateModuleType() {
+        moduleNameLabel.setForeground(Color.black);
+        validatType.setVisible(false);
         isvalidate = true;
-        if (!moduleTypeNameText.getText().matches("[a-zA-Z0-9]+")) {
+        if (!moduleTypeNameText.getText().matches("[a-zA-Z]+[\\s_0-9a-zA-Z]*")) {
+//            "[a-zA-Z]+[0-9]*\\s*"
             isvalidate = false;
+            validatType.setVisible(true);
+            moduleNameLabel.setForeground(Color.red);
             validatType.setVisible(true);
         }
     }
@@ -1414,21 +1442,34 @@ public class AdminView extends javax.swing.JFrame {
             if (moduleTypeCombo.isEnabled() == false) {
                 adminController.saveObject(newModuleType);
                 moduleTypeCombo.addItem(newModuleType);
-                System.out.println("saved");
+                moduleTypeCombo.setSelectedItem(newModuleType);
+                OkOption ok = new OkOption(this, "Saved");
+                ok.setLabel1("Module-Type saved");
+                ok.showDialog();
+                moduleTypeCombo.setEnabled(true);
+                createModuleTypeButt.setText("Create Module Type");
                 isSave = false;
+
             } else {
                 OkCancelOption okCancelOption = new OkCancelOption(this, "Are you sure of these changes?");
                 okCancelOption.setLabel1("Are you sure of these changes?");
                 boolean response = okCancelOption.showDialog();
                 if (response) {
                     adminController.mergeObject(newModuleType);
-                    System.out.println("merged");
+                    OkOption ok = new OkOption(this, "Updated");
+                    ok.setLabel1("Module-Type updated");
+                    ok.showDialog();
                 }
             }
+        } else {
+            newModuleType = null;
         }
     }
 
     private void validateModule() {
+        validatmodule.setVisible(false);
+        version.setForeground(Color.black);
+        jLabel1.setForeground(Color.black);
         isvalidate = true;
         if (moduleTypeCombo.getSelectedIndex() <= 0) {
             isvalidate = false;
@@ -1436,9 +1477,15 @@ public class AdminView extends javax.swing.JFrame {
             validatmodule.setVisible(true);
             return;
         }
-        if (!moduleNameText.getText().matches("[a-zA-Z]+[0-9]*") || !moduleVersionText.getText().matches("[\\d]+[\\.]*")) {
+        if (!moduleNameText.getText().matches("[a-zA-Z]+[\\s_0-9a-zA-Z]*") || !moduleVersionText.getText().matches("[\\d]+[\\.]*")) {
             isvalidate = false;
             validatmodule.setText("One of your entries contains invalid characters");
+            if (!moduleNameText.getText().matches("[a-zA-Z]+[\\s_0-9a-zA-Z]*")) {
+                jLabel1.setForeground(Color.red);
+            }
+            if (!moduleVersionText.getText().matches("[\\d]+\\.\\d")) {
+                version.setForeground(Color.red);
+            }
             validatmodule.setVisible(true);
         }
     }
@@ -1459,7 +1506,6 @@ public class AdminView extends javax.swing.JFrame {
         }
 
         validateModule();
-        System.out.println("validdating");
         if (isvalidate) {
             System.out.println("validated");
             newModule.setModelName(moduleNameText.getText());
@@ -1469,8 +1515,11 @@ public class AdminView extends javax.swing.JFrame {
             if (moduleCombo.isEnabled() == false) {
                 adminController.saveObject(newModule);
                 moduleCombo.addItem(newModule);
+                OkOption ok = new OkOption(this, "Saved");
+                ok.setLabel1("New module saved");
+                moduleCombo.setSelectedItem(newModule);
+                moduleCombo.setEnabled(true);
                 isSave = false;
-                System.out.println("saved");
             } else {
                 OkCancelOption ok = new OkCancelOption(this, "Are you sure of these changes?");
                 ok.setLabel1("Are you sure of these changes?");
@@ -1490,7 +1539,8 @@ public class AdminView extends javax.swing.JFrame {
             newComponent = new SimComponent();
         } else {
             if (componentCombo.getSelectedIndex() == 0) {
-                OkOption ok = new OkOption(this, "You must select a component to edit");
+                OkOption ok = new OkOption(this, "Select a component");
+                ok.setLabel1("You must select a component to edit");
                 ok.showDialog();
                 return;
             }
@@ -1514,18 +1564,28 @@ public class AdminView extends javax.swing.JFrame {
 
             Set<SimComponent> set = new HashSet<SimComponent>();
             Object[] successor = checkBox.getCheckBoxListSelectedValues();
-            for (int i = 0; i < successor.length; i++) {
-                set.add((SimComponent) successor[i]);
+
+            for (Object obj : successor) {
+                set.add((SimComponent) obj);
             }
 
             newComponent.setSuccessors(set);
             if (componentCombo.isEnabled() == false) {
                 adminController.saveObject(newComponent);
                 componentCombo.addItem(newComponent);
+                OkOption ok = new OkOption(this, "Saved");
+                ok.setLabel1("New Component saved");
+                ok.showDialog();
+                componentCombo.setSelectedItem(newComponent);
+                componentCombo.setEnabled(true);
+                createComponentButt.setText("Create Component");
                 isSave = false;
             } else {
 
                 adminController.mergeObject(newComponent);
+                OkOption ok = new OkOption(this, "Updated");
+                ok.setLabel1("Component Updated");
+                ok.showDialog();
             }
         }
     }

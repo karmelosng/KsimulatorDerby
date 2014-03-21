@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
 import javax.swing.JCheckBox;
@@ -58,12 +60,16 @@ public class AdminView extends javax.swing.JFrame {
     private File[] fileout;
     private byte[][] filebyte;
     private FileOutputStream[] outfile;
-    ;
+    
     private DefaultListModel listModel;
 
     public AdminView() {
         initComponents();
-
+        try{
+        setIconImage(ImageIO.read(this.getClass().getResource("/com/karmelos/ksimulator/2ndbaricon/kicon.png"))); }
+        catch(IOException io){
+            Logger.getLogger(AdminView.class.getName()).log(Level.SEVERE, null, io);
+        }
         adminController = new SimAdminController();
         simUser = adminController.fetchSimUser();
         simModuleType = adminController.fetchModuleTypes();
@@ -191,6 +197,7 @@ public class AdminView extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("KSimulator Administration");
+        setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
                 formWindowClosing(evt);
@@ -211,12 +218,15 @@ public class AdminView extends javax.swing.JFrame {
             }
         });
 
-        subPanel.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED));
+        subPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "User Info", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.BELOW_TOP, new java.awt.Font("Calibri", 1, 18))); // NOI18N
+
+        usernameText.setToolTipText("... must start with an alphabet, can be followed by digits,alphabet or_ ");
 
         usernameLabel.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         usernameLabel.setLabelFor(usernameText);
         usernameLabel.setText("Username");
 
+        passText.setToolTipText("can be empty but must correspond with confirm password");
         passText.setMaximumSize(usernameText.getMaximumSize());
         passText.setMinimumSize(usernameText.getMinimumSize());
         passText.setPreferredSize(usernameText.getPreferredSize());
@@ -250,6 +260,10 @@ public class AdminView extends javax.swing.JFrame {
         usereq.setForeground(new java.awt.Color(255, 0, 0));
         usereq.setText("***");
 
+        valid.setForeground(new java.awt.Color(255, 0, 0));
+        valid.setText("Invalid entry please check and try again");
+        valid.setFocusable(false);
+
         javax.swing.GroupLayout subPanelLayout = new javax.swing.GroupLayout(subPanel);
         subPanel.setLayout(subPanelLayout);
         subPanelLayout.setHorizontalGroup(
@@ -272,7 +286,7 @@ public class AdminView extends javax.swing.JFrame {
                                 .addComponent(lastLabel)
                                 .addGap(77, 77, 77)
                                 .addComponent(middleName)))
-                        .addGap(0, 76, Short.MAX_VALUE))
+                        .addGap(0, 70, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, subPanelLayout.createSequentialGroup()
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(userSave, javax.swing.GroupLayout.PREFERRED_SIZE, 215, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -292,11 +306,17 @@ public class AdminView extends javax.swing.JFrame {
                             .addComponent(middleText, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(confirmPass))))
                 .addContainerGap())
+            .addGroup(subPanelLayout.createSequentialGroup()
+                .addGap(186, 186, 186)
+                .addComponent(valid)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         subPanelLayout.setVerticalGroup(
             subPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(subPanelLayout.createSequentialGroup()
-                .addGap(32, 32, 32)
+                .addGap(12, 12, 12)
+                .addComponent(valid)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(subPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(usernameLabel)
                     .addComponent(passLabel)
@@ -320,12 +340,8 @@ public class AdminView extends javax.swing.JFrame {
                     .addComponent(middleText, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(59, 59, 59)
                 .addComponent(userSave, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(157, Short.MAX_VALUE))
+                .addContainerGap(127, Short.MAX_VALUE))
         );
-
-        valid.setForeground(new java.awt.Color(255, 0, 0));
-        valid.setText("Invalid entry please check and try again");
-        valid.setFocusable(false);
 
         javax.swing.GroupLayout panel1Layout = new javax.swing.GroupLayout(panel1);
         panel1.setLayout(panel1Layout);
@@ -337,26 +353,19 @@ public class AdminView extends javax.swing.JFrame {
                 .addContainerGap())
             .addGroup(panel1Layout.createSequentialGroup()
                 .addGap(33, 33, 33)
-                .addGroup(panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panel1Layout.createSequentialGroup()
-                        .addGap(10, 10, 10)
-                        .addComponent(valid))
-                    .addGroup(panel1Layout.createSequentialGroup()
-                        .addComponent(listOfUsers, javax.swing.GroupLayout.PREFERRED_SIZE, 202, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(92, 92, 92)
-                        .addComponent(createUser, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addComponent(listOfUsers, javax.swing.GroupLayout.PREFERRED_SIZE, 202, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(82, 82, 82)
+                .addComponent(createUser, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         panel1Layout.setVerticalGroup(
             panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panel1Layout.createSequentialGroup()
-                .addGap(33, 33, 33)
+                .addGap(30, 30, 30)
                 .addGroup(panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(listOfUsers, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(createUser, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(15, 15, 15)
-                .addComponent(valid)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(43, 43, 43)
                 .addComponent(subPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
@@ -376,6 +385,10 @@ public class AdminView extends javax.swing.JFrame {
                 createModuleTypeButtActionPerformed(evt);
             }
         });
+
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Module Type Info", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.BELOW_TOP, new java.awt.Font("Calibri", 1, 18))); // NOI18N
+
+        moduleTypeNameText.setToolTipText("...must begin with aphabets,then alphanumerics,space or _");
 
         moduleNameLabel.setFont(usernameLabel.getFont());
         moduleNameLabel.setLabelFor(moduleTypeCombo);
@@ -420,7 +433,7 @@ public class AdminView extends javax.swing.JFrame {
                                 .addComponent(validatType))
                             .addComponent(jScrollPane1)
                             .addComponent(moduleTypeNameText, javax.swing.GroupLayout.DEFAULT_SIZE, 490, Short.MAX_VALUE))))
-                .addContainerGap(65, Short.MAX_VALUE))
+                .addContainerGap(53, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -465,7 +478,7 @@ public class AdminView extends javax.swing.JFrame {
                     .addComponent(createModuleTypeButt, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(50, 50, 50)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(68, Short.MAX_VALUE))
+                .addContainerGap(32, Short.MAX_VALUE))
         );
 
         mainTab.addTab("Module Type", panel2);
@@ -487,9 +500,15 @@ public class AdminView extends javax.swing.JFrame {
             }
         });
 
+        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Module Info", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.BELOW_TOP, new java.awt.Font("Calibri", 1, 18))); // NOI18N
+
+        moduleNameText.setToolTipText("must begin with alphabets,can be followed by alphanumerics,spaces or _");
+
         jLabel1.setFont(usernameLabel.getFont());
         jLabel1.setLabelFor(moduleNameText);
         jLabel1.setText("Name");
+
+        moduleVersionText.setToolTipText("must begin with a digit,can be followed by \".\" digits");
 
         version.setFont(usernameLabel.getFont());
         version.setText("Version");
@@ -598,7 +617,7 @@ public class AdminView extends javax.swing.JFrame {
                     .addComponent(createModule, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(52, 52, 52)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(58, Short.MAX_VALUE))
+                .addContainerGap(22, Short.MAX_VALUE))
         );
 
         mainTab.addTab("Module", panel3);
@@ -624,6 +643,9 @@ public class AdminView extends javax.swing.JFrame {
             }
         });
 
+        componentPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Component Info", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.BELOW_TOP, new java.awt.Font("Calibri", 1, 18))); // NOI18N
+
+        componentNameText.setToolTipText("must begin with alphabets, can be followed by alphanumerics,spaces or _");
         componentNameText.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 componentNameTextActionPerformed(evt);
@@ -632,6 +654,8 @@ public class AdminView extends javax.swing.JFrame {
 
         componentName.setFont(usernameLabel.getFont());
         componentName.setText("Name");
+
+        componentOverlay.setToolTipText(" if present, only a single digit");
 
         overlayLabel.setFont(usernameLabel.getFont());
         overlayLabel.setText("Overlay Order");
@@ -817,36 +841,32 @@ public class AdminView extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(componentPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(componentPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(componentPanelLayout.createSequentialGroup()
-                            .addGap(26, 26, 26)
-                            .addComponent(componentSave, javax.swing.GroupLayout.PREFERRED_SIZE, 178, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(componentPanelLayout.createSequentialGroup()
-                            .addGap(18, 18, 18)
-                            .addComponent(threeDLabel))
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, componentPanelLayout.createSequentialGroup()
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addGroup(componentPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(componentPanelLayout.createSequentialGroup()
-                                    .addComponent(imgText, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGap(18, 18, 18)
-                                    .addComponent(imgButt, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(componentPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                    .addGroup(componentPanelLayout.createSequentialGroup()
-                                        .addComponent(mtlText, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(mtlbutt, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(componentPanelLayout.createSequentialGroup()
-                                        .addComponent(objText, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(objbutt, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                            .addGap(22, 22, 22)))
                     .addGroup(componentPanelLayout.createSequentialGroup()
                         .addGap(18, 18, 18)
+                        .addComponent(threeDLabel))
+                    .addGroup(componentPanelLayout.createSequentialGroup()
+                        .addGap(5, 5, 5)
                         .addGroup(componentPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(componentPanelLayout.createSequentialGroup()
+                                .addComponent(imgText, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(imgButt, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(componentPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addGroup(componentPanelLayout.createSequentialGroup()
+                                    .addComponent(mtlText, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(mtlbutt, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(componentPanelLayout.createSequentialGroup()
+                                    .addComponent(objText, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(objbutt, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                    .addGroup(componentPanelLayout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addGroup(componentPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(mtlLabel)
                             .addComponent(imgLabel)
-                            .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 164, Short.MAX_VALUE)
+                            .addComponent(componentSave, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         componentPanelLayout.setVerticalGroup(
@@ -870,11 +890,11 @@ public class AdminView extends javax.swing.JFrame {
                 .addGroup(componentPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(imgText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(imgButt, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane4)
-                .addGap(29, 29, 29)
+                .addGap(18, 18, 18)
                 .addComponent(componentSave, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(20, 20, 20))
+                .addGap(43, 43, 43))
             .addGroup(componentPanelLayout.createSequentialGroup()
                 .addGroup(componentPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(componentPanelLayout.createSequentialGroup()
@@ -1299,7 +1319,7 @@ public class AdminView extends javax.swing.JFrame {
             objText.setText(file.getPath());
             file = new File("KSim3DResource" + "\\mat_" + component.getId() + ".mtl");
             mtlText.setText(file.getPath());
-            file = new File("KSim3DResource" + "\\img_" + component.getId() + ".jpg");
+            file = new File("KSim3DResource" + "\\img_front" + component.getId() + ".jpg");
             imgText.setText(file.getPath());
         } else {
             System.out.println("in else");
@@ -1781,13 +1801,19 @@ public class AdminView extends javax.swing.JFrame {
         threeDLabel.setForeground(Color.black);
         mtlLabel.setForeground(Color.black);
         imgLabel.setForeground(Color.black);
+        overlayLabel.setForeground(Color.black);
         isvalidate = true;
-        if (!componentNameText.getText().matches("[a-zA-Z]+[0-9]*")) {
-
+        if (!componentNameText.getText().matches("[a-zA-Z]+[\\s_0-9a-zA-Z]*")) {
             isvalidate = false;
             componentName.setForeground(Color.red);
             return;
         }
+        if(!componentOverlay.getText().matches("\\d{1}")){
+        isvalidate = false;
+        overlayLabel.setForeground(Color.red);
+        return;
+        }
+        
         if (componentCombo.isEnabled() == false) {
             while (compoIcon.getText().isEmpty()) {
                 isvalidate = false;

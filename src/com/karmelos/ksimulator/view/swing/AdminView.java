@@ -1031,7 +1031,6 @@ public class AdminView extends javax.swing.JFrame {
         for (Component comp : comps) {
             if (comp instanceof JTextField) {
                 ((JTextField) comp).setText("");
-                System.out.println("cleared");
             }
 
 //        if(comp instanceof JTextArea){
@@ -1191,7 +1190,7 @@ public class AdminView extends javax.swing.JFrame {
             Set<SimComponent> set = new HashSet();
             set = component.getSuccessors();
             int[] checked = new int[set.size()];
-            System.out.println(set.size());
+            Logger.getLogger(AdminView.class.getName()).log(Level.SEVERE, null, set.size());
             for (int i = 0; i < listCom.size(); i++) {
                 if (set.contains(listCom.get(i))) {
                     checkBox.addCheckBoxListSelectedValue(listCom.get(i), true);
@@ -1214,9 +1213,7 @@ public class AdminView extends javax.swing.JFrame {
 
     private void saveModuleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveModuleActionPerformed
         makeModule();
-        System.out.println(isSave);
     }//GEN-LAST:event_saveModuleActionPerformed
-
     private void iconButtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_iconButtActionPerformed
         uploadRaw(evt);
     }//GEN-LAST:event_iconButtActionPerformed
@@ -1314,7 +1311,6 @@ public class AdminView extends javax.swing.JFrame {
             componentOverlay.setText(new Integer(component.getOverlayOrder()).toString());
             compDescription.setText(component.getDescription());
             componentStarter.setSelected(component.isStarter());
-            System.out.println(component + " is starter is " + component.isStarter());
             File file = new File("KSim3DResource" + "\\obj_" + component.getId() + ".obj");
             objText.setText(file.getPath());
             file = new File("KSim3DResource" + "\\mat_" + component.getId() + ".mtl");
@@ -1322,7 +1318,6 @@ public class AdminView extends javax.swing.JFrame {
             file = new File("KSim3DResource" + "\\img_front" + component.getId() + ".jpg");
             imgText.setText(file.getPath());
         } else {
-            System.out.println("in else");
             clearComponent();
         }
 
@@ -1527,7 +1522,7 @@ public class AdminView extends javax.swing.JFrame {
 
         validateModule();
         if (isvalidate) {
-            System.out.println("validated");
+            Logger.getLogger(AdminView.class.getName()).log(Level.SEVERE, null, "validated");
             newModule.setModelName(moduleNameText.getText());
             newModule.setVersionName(moduleVersionText.getText());
             newModule.setDescription(moduleDescriptionText.getText());
@@ -1546,7 +1541,7 @@ public class AdminView extends javax.swing.JFrame {
                 boolean response = ok.showDialog();
                 if (response) {
                     adminController.mergeObject(newModule);
-                    System.out.println("merged");
+                    Logger.getLogger(AdminView.class.getName()).log(Level.SEVERE, null, "merged");
                 }
             }
 
@@ -1636,40 +1631,6 @@ public class AdminView extends javax.swing.JFrame {
     private void controlComponent(boolean control) {
         componentCombo.setSelectedIndex(0);
         mainTab.setEnabledAt(3, control);
-//        Component[] comps = panel4.getComponents();
-//        for(Component comp:comps){
-//        if(comp instanceof JComboBox){
-//            ((JComboBox)comp).setSelectedIndex(0);
-////        checkBox.removeAll();
-//        }
-//        
-//        comp.setEnabled(control);
-//        }
-//        Component[] compan = componentPanel.getComponents();
-//        for(Component com : compan){
-////            if(com instanceof CheckBoxList){
-////            ((CheckBoxList)com).removeAll();
-////            ((CheckBoxList)com).updateUI();
-////            System.out.println("removed");
-//            
-////        }
-//            
-//        com.setEnabled(control);
-//        
-//        }
-//        componentCombo.setSelectedIndex(0);
-//        componentCombo.setEnabled(control);
-//        createComponentButt.setEnabled(control);
-//        iconButt.setEnabled(control);
-//        wireButt.setEnabled(control);
-//        descButt.setEnabled(control);
-//        objbutt.setEnabled(control);
-//        mtlbutt.setEnabled(control);
-//        imgButt.setEnabled(control);
-//        solidImgButt.setEnabled(control);
-//        componentSave.setEnabled(control);
-//        componentStarter.setEnabled(control);
-        clearComponent();
     }
 
     private void uploadRaw(ActionEvent event) {

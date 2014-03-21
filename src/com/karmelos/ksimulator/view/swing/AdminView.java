@@ -1400,25 +1400,33 @@ public class AdminView extends javax.swing.JFrame {
                     ok.showDialog();
                 }
             }
-        } else {
-            newUser = null;
-            valid.setVisible(true);
-            usernameLabel.setForeground(Color.red);
-        }
+        } 
+//        else {
+//            newUser = null;
+//            valid.setVisible(true);
+//            usernameLabel.setForeground(Color.red);
+//        }
     }
 
     private void validateUser() {
         valid.setVisible(false);
         usernameLabel.setForeground(Color.black);
+        passLabel.setForeground(Color.black);
+        
+        isvalidate = true;
         valid.setVisible(false);
-        if (usernameText.getText().matches("[a-zA-Z]+[_0-9a-zA-Z]*")) {
-            isvalidate = true;
+        if (!usernameText.getText().matches("[a-zA-Z]+[_0-9a-zA-Z]*")) {
+            usernameLabel.setForeground(Color.red);
+            valid.setVisible(true);
+            isvalidate = false;
         }
 //        if (passText.getText().toString().matches("[a-zA-Z0-9_]")) {
 //            isvalidate = true;
 //        }
         if (!passText.getText().isEmpty() && !passText.equals("")) {
             if (!passText.getText().equals(confirmPassText.getText())) {
+                passLabel.setForeground(Color.red);
+                valid.setVisible(true);
                 isvalidate = false;
             }
         }

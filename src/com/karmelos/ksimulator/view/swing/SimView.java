@@ -19,7 +19,6 @@ import com.sun.j3d.loaders.objectfile.ObjectFile;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.Dialog;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -64,7 +63,6 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -76,24 +74,19 @@ import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JPopupMenu;
-import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
 import javax.swing.TransferHandler;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.WindowConstants;
-import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
@@ -142,8 +135,16 @@ public class SimView extends javax.swing.JFrame implements Observer {
      * Creates new form SimView
      */
     public SimView() throws IOException {
+        
+          //instantiate Persistence and SimController
+        controller = new SimController();
+        // addObserver to the initll 
+        controller.getDummyState().addObserver(this);
+        controller.getDummyState().notifyObservers();
+        
+        //check Server Availability Thread is started here
         try {
-            UIManager.setLookAndFeel(SimController.getPresentTheme());
+            UIManager.setLookAndFeel(controller.getPresentTheme());
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(SimView.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
@@ -153,6 +154,7 @@ public class SimView extends javax.swing.JFrame implements Observer {
         } catch (UnsupportedLookAndFeelException ex) {
             Logger.getLogger(SimView.class.getName()).log(Level.SEVERE, null, ex);
         }
+
         this.setIconImage(ImageIO.read(this.getClass().getResource("/com/karmelos/ksimulator/2ndbaricon/kicon.png")));
         lockedIcon = new ImageIcon(getClass().getResource("/com/karmelos/ksimulator/2ndbaricon/locked24.png"));
         unlockedIcon = new ImageIcon(getClass().getResource("/com/karmelos/ksimulator/2ndbaricon/unlocked24.png"));
@@ -193,8 +195,7 @@ public class SimView extends javax.swing.JFrame implements Observer {
         //instantatiate Themes as CheckBoxes of themes and Add to ThemeMenu
         //LoadAllAvailableThemes(); 
         init();
-
-
+     
 
         //Add Listeners to the Generated VectorList of Checboxes
         AttachListener(listOfLabels);
@@ -221,7 +222,7 @@ public class SimView extends javax.swing.JFrame implements Observer {
         try {
 
             Map<String, String> control = controller.retrieveThemeSettings();
-            // get keySet Alone
+            // get keySet Alone           
             Iterator<String> keySet = control.keySet().iterator();
             String currentTheme = control.get("currenttheme");
             while (keySet.hasNext()) {
@@ -1316,13 +1317,13 @@ public class SimView extends javax.swing.JFrame implements Observer {
                  mapScenes.put(sc, scene.getSceneGroup());
                 
              } catch (ParsingErrorException e) {
-                 System.err.println(e);
+                Logger.getLogger(SimView.class.getName()).log(Level.SEVERE, null, e);
                  System.exit(1);
              } catch (IncorrectFormatException e) {
-                 System.err.println(e);
+                 Logger.getLogger(SimView.class.getName()).log(Level.SEVERE, null, e);
                  System.exit(1);
              } catch (FileNotFoundException ex) { 
-                System.err.println(ex);  
+                Logger.getLogger(SimView.class.getName()).log(Level.SEVERE, null, ex);
                } 
 
          } // end For Scene Loop
@@ -1830,13 +1831,7 @@ public class SimView extends javax.swing.JFrame implements Observer {
     }//GEN-LAST:event_availableCompListMousePressed
 
     public void init() throws IOException {
-        //instantiate Persistence and SimController
-        controller = new SimController();
-        // addObserver to the SimStateNull 
-        controller.getDummyState().addObserver(this);
-        controller.getDummyState().notifyObservers();
         droppablePanel.setController(controller);
-        //check Server Availability Thread is started here
         Timer threeSec = new Timer();
         TimerTask serverCheck = new TimerTask() {
             @Override
@@ -1991,7 +1986,7 @@ public class SimView extends javax.swing.JFrame implements Observer {
             try {
                 job.print();
             } catch (PrinterException e) {
-                System.err.println(e.getMessage());
+                Logger.getLogger(SimView.class.getName()).log(Level.SEVERE, null, e);
             }
         }
 
@@ -2113,16 +2108,10 @@ public class SimView extends javax.swing.JFrame implements Observer {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                try {
-                    sv = new SimView();
-                    sv.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-                    sv.setResizable(true);
-                    //sv.init();
-                    sv.setVisible(true);
-
-                } catch (IOException ex) {
-                    Logger.getLogger(SimView.class.getName()).log(Level.SEVERE, null, ex);
-                }
+               
+                    SplashScreen sc= new SplashScreen();
+                     sc.setVisible(true);
+       
             }
         });
     }
@@ -2643,7 +2632,7 @@ class ComponentDrag extends MouseAdapter implements MouseListener {
 
             }
         } catch (NullPointerException nul) {
-            System.out.println("first click on workspace");
+            Logger.getLogger(SimView.class.getName()).log(Level.SEVERE, null, nul);
         }
     }
 
@@ -2862,7 +2851,6 @@ class ComponentDrag extends MouseAdapter implements MouseListener {
     private String[] getListComponentId(List<SimComponent> list) {
         List<String> names = new ArrayList<String>();
         String[] idArray = null;
-        System.out.println(list.size());
         if (list.size() > 0) {
             for (SimComponent components : list) {
                 Long id = components.getId();
@@ -2870,7 +2858,7 @@ class ComponentDrag extends MouseAdapter implements MouseListener {
             }
             idArray = new String[names.size()];
             idArray = names.toArray(idArray);
-            System.out.println(idArray[0]);
+           
 
         }
 
@@ -2932,7 +2920,6 @@ class ThemeChangeListener implements MouseListener {
     public void mouseClicked(MouseEvent me) {
         JLabel src = (JLabel) me.getSource();
         String selected = src.getText();
-
         controller.setCurrentTheme(mapTheme.get(selected));
         MarkSelectedTheme(src);
 
@@ -2968,7 +2955,9 @@ class ThemeChangeListener implements MouseListener {
             }
 
         }
-
-
+        // alert for closing app
+       OkOption alert = new OkOption(null, "Ksimulator");
+       alert.setMessage("You have to restart Application to effect theme Change");
+       alert.showDialog();
     }
 }

@@ -1,6 +1,8 @@
 package com.karmelos.ksimulator.controller;
 
 import com.karmelos.ksimulator.exception.SimException;
+import com.karmelos.ksimulator.model.Settings;
+
 import java.util.List;
 
 import com.karmelos.ksimulator.model.SimComponent;
@@ -43,6 +45,7 @@ import javax.swing.JOptionPane;
 
 
 
+
 // Minor Change in Code: Creates Two Entity Manangers ,One to retrieve
 // components and the other for session saving or retrieval
 // Ping Server prior to saving to check Server Status, if it fails save to local hence save session to server
@@ -74,6 +77,7 @@ public class SimController {
     private List<SimComponent> immediatePlacedComponentBeforeSave= new LinkedList<SimComponent>();
     private Map<SimComponent,BranchGroup> scenesAll= new HashMap<SimComponent, BranchGroup>();
     public SimController() {
+        // if starttSession is true. means a session has started, else dunmmystate
         dummyState = new SimStateNull();
         Map LocalProperty = new HashMap();
         LocalProperty.put("hibernate.show_sql", true);
@@ -83,9 +87,7 @@ public class SimController {
         instantiateServerEntityManager();
 
     }
-
-  
-
+   
     public Map<SimComponent, BranchGroup> getScenesAll() {
         return scenesAll;
     }
@@ -739,7 +741,7 @@ public class SimController {
             
         } finally {
          setFirstSave(false);
-         afterFirstSaveReservoirCollector();
+        // afterFirstSaveReservoirCollector();
         }// end if
       
    
@@ -893,78 +895,49 @@ public class SimController {
     }
    
     public  String retrieveServerAddress() {
-        String serveradd = "";
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ksimulator", "root", "");
-            Statement st = con.createStatement();
-            String query = "select * from settings where keyword='serveraddress'";
-            //PreparedStatement prest = con.prepareStatement(query);
-            //prest.setString(1, "server_address");
-
-            settingsProperties = st.executeQuery(query);
-               settingsProperties.next();
-           // get and return only serverddress   keeping temporsry           
-                serveradd = settingsProperties.getString("value");
-            
-
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(SimView.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
-            Logger.getLogger(SimView.class.getName()).log(Level.SEVERE, null, ex);
+        String serverAdd="";
+         List<Settings> list;
+     try {
+            Query q = entityManager.createQuery("select o from Settings o where o.keyword = :mtid ");
+            q.setParameter("mtid", "serveraddress");
+            //convert list to SimModule[] and return
+            list = q.getResultList();
+        } finally {
         }
-
-        return serveradd;
+     return list.get(0).getSettingvalues();
     }
     
     public  Map retrieveThemeSettings() throws SQLException {
-        ResultSet rset =null;
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ksimulator", "root", "");
-            Statement st = con.createStatement();
-            String query = "SELECT * from settings";            
-
-           rset = st.executeQuery(query);
-           rset.next();
-    
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(SimView.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
-            Logger.getLogger(SimView.class.getName()).log(Level.SEVERE, null, ex);
+        Iterator<Settings> iterater;
+       try {
+            Query q = entityManager.createQuery("select o from Settings o where o.themeUsable = :mtid ");
+            q.setParameter("mtid", true);
+            //convert list to SimModule[] and return
+            List<Settings> list = q.getResultList();
+             iterater =list.iterator();
+        } finally {
         }
 
-        return convertResultSetToMap(rset);
+        return convertResultSetToMap(iterater);
     }
-    public static String getPresentTheme(){
+    public  String getPresentTheme(){
      String themeName="";
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ksimulator", "root", "");
-            Statement st = con.createStatement();
-            String query = "SELECT * from settings  where keyword='currenttheme'";
-           
-             ResultSet rs=st.executeQuery(query);
-             rs.next();
-            themeName= rs.getString("value");
-           con.close();
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(SimView.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
-            Logger.getLogger(SimView.class.getName()).log(Level.SEVERE, null, ex);
-        }  
-      finally{
-        
+     Iterator<Settings> setup;
+      try { 
+             Query q = entityManager.createQuery("select o from Settings o where o.keyword = :mtid ");
+            q.setParameter("mtid", "currentTheme");
+            //convert list to SimModule[] and return
+            setup = q.getResultList().iterator();
+        } finally {
         }
-    
-    
-    return themeName;
+    return setup.next().getSettingvalues();
     }
-    // utility method to ping Server
-    public Map<String,String> convertResultSetToMap(ResultSet convertee) throws SQLException{
+    // utility method 
+    public Map<String,String> convertResultSetToMap(Iterator<Settings> convertee) throws SQLException{
        Map<String,String> converted= new HashMap<String, String>();
-        while(convertee.next()){
-       converted.put(convertee.getString("keyword"),convertee.getString("value"));
+        while(convertee.hasNext()){
+            Settings setup = convertee.next();
+       converted.put(setup.getKeyword(),setup.getSettingvalues());
        
        }
       mapOfThemes=converted;  
@@ -977,23 +950,12 @@ public class SimController {
     
      public void setCurrentTheme(String current){
      // update currentTheme
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ksimulator", "root", "");
-            Statement st = con.createStatement();
-            String query = "UPDATE settings SET value='now' where keyword='currenttheme'";
-           
-             st.executeUpdate(query.replaceAll("now", current));
-           con.close();
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(SimView.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
-            Logger.getLogger(SimView.class.getName()).log(Level.SEVERE, null, ex);
-        }  
-      finally{
-        
-        }
-     }
+       Query q = entityManager.createQuery("select o from Settings o where o.keyword = :mtid ");
+            q.setParameter("mtid","currentTheme"); 
+           Settings setup = (Settings) q.getResultList().get(0);
+          setup.setSettingvalues(current);
+          mergeObject(setup);
+               }
      
      public List<SimComponent> retrieveAllSimComponent(){
      

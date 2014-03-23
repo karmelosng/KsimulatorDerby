@@ -15,7 +15,7 @@
       <property name="hibernate.connection.url" value="jdbc:mysql://192.168.1.102:3306/testsimulator?zeroDateTimeBehavior=convertToNull"/>
       <property name="hibernate.connection.password" value=" "/>
       <property name="hibernate.cache.provider_class" value="org.hibernate.cache.NoCacheProvider"/>
-     <property name="hibernate.hbm2ddl.auto" value="update"/>
+      <property name="hibernate.hbm2ddl.auto" value="update"/>
     </properties>
   </persistence-unit>
   <persistence-unit name="Access" transaction-type="RESOURCE_LOCAL">
@@ -27,10 +27,12 @@
     <class>com.karmelos.ksimulator.model.SimPoint</class>
     <class>com.karmelos.ksimulator.model.SimState</class>
     <class>com.karmelos.ksimulator.model.SimUser</class>
+    
+    
     <properties>
       <property name="hibernate.connection.username" value="root"/>
       <property name="hibernate.connection.driver_class" value="com.mysql.jdbc.Driver"/>
-      <property name="hibernate.connection.password" value=" "/>     
+      <property name="hibernate.connection.password" value=" "/>
       <property name="hibernate.cache.provider_class" value="org.hibernate.cache.NoCacheProvider"/>
       <property name="hibernate.hbm2ddl.auto" value="update"/>
     </properties>

@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Set;
 import javax.imageio.ImageIO;
 import javax.media.j3d.BranchGroup;
+import javax.persistence.Basic;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -109,7 +111,9 @@ public class SimComponent implements Serializable {
     InputStream in= new ByteArrayInputStream(rawIconImage);
     return ImageIO.read(in);
     }
-    
+     @Column(length = 15000)
+     @Lob
+     @Basic(fetch = FetchType.LAZY)
     public byte[] getRawDescriptionimage() {
         return rawDescriptionimage;
     }
@@ -117,7 +121,10 @@ public class SimComponent implements Serializable {
     public void setRawDescriptionimage(byte[] rawDescriptionimage) {
         this.rawDescriptionimage = rawDescriptionimage;
     }
-
+  
+    @Column(length = 15000)
+     @Lob
+     @Basic(fetch = FetchType.LAZY)
     public byte[] getRawIconImage() {
         return rawIconImage;
     }
@@ -125,7 +132,10 @@ public class SimComponent implements Serializable {
     public void setRawIconImage(byte[] rawIconImage) {
         this.rawIconImage = rawIconImage;
     }
-
+    
+    @Column(length = 15000)
+     @Lob
+     @Basic(fetch = FetchType.LAZY)
     public byte[] getRawWireframeImage() {
         return rawWireframeImage;
     }
@@ -133,7 +143,11 @@ public class SimComponent implements Serializable {
     public void setRawWireframeImage(byte[] rawWireframeImage) {
         this.rawWireframeImage = rawWireframeImage;
     }
-
+    
+    
+    @Column(length = 15000)
+     @Lob
+     @Basic(fetch = FetchType.LAZY)
     public byte[] getRawSolidImage() {
         return rawSolidImage;
     }

@@ -4,6 +4,8 @@
  */
 package com.karmelos.ksimulator.model;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Observable;
 
 /**
@@ -12,6 +14,13 @@ import java.util.Observable;
  */
 // Dummy Class to handle unstarted State issues, i.e  Changing SimUser when state isnt started
 public class SimStateNull extends Observable{
+    private Settings settingModel;
+
+    public SimStateNull() {
+        this.settingModel = new Settings();
+    }
+    
+    
     @Override
     public void setChanged() {
         super.setChanged();

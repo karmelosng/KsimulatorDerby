@@ -1,5 +1,7 @@
 package com.karmelos.ksimulator.controller;
 
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.karmelos.ksimulator.exception.SimException;
 import com.karmelos.ksimulator.model.Settings;
 
@@ -69,7 +71,7 @@ public class SimController {
     private static String baseUrl = "jdbc:mysql://host:3306/ksimulator?zeroDateTimeBehavior=convertToNull";
     private boolean firstSave=true;
     private List<SimComponent> immediatePlacedComponentBeforeSave= new LinkedList<SimComponent>();
-    private Map<SimComponent,BranchGroup> scenesAll= new HashMap<SimComponent, BranchGroup>();
+    private Map<SimComponent,ModelInstance> scenesAll= null;;
     public SimController() {
         // if starttSession is true. means a session has started, else dunmmystate
         dummyState = new SimStateNull();
@@ -82,11 +84,11 @@ public class SimController {
 
     }
    
-    public Map<SimComponent, BranchGroup> getScenesAll() {
+    public Map<SimComponent,ModelInstance> getScenesAll() {
         return scenesAll;
     }
 
-    public void setScenesAll(Map<SimComponent, BranchGroup> scenesAll) {
+    public void setScenesAll(Map<SimComponent,ModelInstance> scenesAll) {
         this.scenesAll = scenesAll;
     }
 

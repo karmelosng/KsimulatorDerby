@@ -1,6 +1,10 @@
 package com.karmelos.ksimulator.view.swing;
 
 //package com.karmelos.ksimulator.view.swing;
+import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
+import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.tests.utils.GdxTest;
 import com.karmelos.ksimulator.controller.SimController;
 import com.karmelos.ksimulator.exception.SimException;
 import com.karmelos.ksimulator.jdialogs.CancelOption;
@@ -12,10 +16,6 @@ import com.karmelos.ksimulator.model.SimModule;
 import com.karmelos.ksimulator.model.SimModuleType;
 import com.karmelos.ksimulator.model.SimPoint;
 import com.karmelos.ksimulator.model.SimUser;
-import com.sun.j3d.loaders.IncorrectFormatException;
-import com.sun.j3d.loaders.ParsingErrorException;
-import com.sun.j3d.loaders.Scene;
-import com.sun.j3d.loaders.objectfile.ObjectFile;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
@@ -63,6 +63,7 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -79,6 +80,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JPopupMenu;
@@ -123,7 +125,8 @@ public class SimView extends javax.swing.JFrame implements Observer {
     private ComponentDrag componentDrag;
     private SimComponent highlightedComponent;
     private ButtonGroup themeButtonGroup;
-   Map<SimComponent,Scene> compScene = new HashMap<SimComponent, Scene>();
+    private ModelTutorial modeltest;
+   
     List<JLabel> listOfLabels;
     private int moduleIndexselected;
     private static SimView sv;
@@ -1297,64 +1300,43 @@ public class SimView extends javax.swing.JFrame implements Observer {
         //pack();
 
         droppablePanel.repaint();
-
+  
     }//GEN-LAST:event_aboutItemActionPerformed
 
     private void edCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_edCheckBoxActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_edCheckBoxActionPerformed
-    public Map<SimComponent,BranchGroup> SceneLize(List<SimComponent> listed){
-        Map<SimComponent, BranchGroup> mapScenes=new HashMap<SimComponent, BranchGroup>();
-           double creaseAngle = 60.0;
-         ObjectFile f = new ObjectFile(0,
-                 (float) (creaseAngle * Math.PI / 180.0));
-    for (SimComponent sc :listed) {
-             
-             Scene scene = null;
-          
-             try {
-                 scene = f.load("KSim3DResource\\obj_" + sc.getId() + ".obj");
-                 mapScenes.put(sc, scene.getSceneGroup());
-                
-             } catch (ParsingErrorException e) {
-                Logger.getLogger(SimView.class.getName()).log(Level.SEVERE, null, e);
-                 System.exit(1);
-             } catch (IncorrectFormatException e) {
-                 Logger.getLogger(SimView.class.getName()).log(Level.SEVERE, null, e);
-                 System.exit(1);
-             } catch (FileNotFoundException ex) { 
-                Logger.getLogger(SimView.class.getName()).log(Level.SEVERE, null, ex);
-               } 
+//    public Map<SimComponent,BranchGroup> SceneLize(List<SimComponent> listed){
+//        Map<SimComponent, BranchGroup> mapScenes=new HashMap<SimComponent, BranchGroup>();
+//           double creaseAngle = 60.0;
+//         ObjectFile f = new ObjectFile(0,
+//                 (float) (creaseAngle * Math.PI / 180.0));
+//    for (SimComponent sc :listed) {
+//             
+//             Scene scene = null;
+//          
+//             try {
+//                 scene = f.load("KSim3DResource\\obj_" + sc.getId() + ".obj");
+//                 mapScenes.put(sc, scene.getSceneGroup());
+//                
+//             } catch (ParsingErrorException e) {
+//                Logger.getLogger(SimView.class.getName()).log(Level.SEVERE, null, e);
+//                 System.exit(1);
+//             } catch (IncorrectFormatException e) {
+//                 Logger.getLogger(SimView.class.getName()).log(Level.SEVERE, null, e);
+//                 System.exit(1);
+//             } catch (FileNotFoundException ex) { 
+//                Logger.getLogger(SimView.class.getName()).log(Level.SEVERE, null, ex);
+//               } 
+//
+//         } // end For Scene Loop
+//       // Put on SeperateThread
+//        availableCompList.setEnabled(true);
+//        // loadingProgressBar.setVisible(false);
+//    return mapScenes;
+//    }
 
-         } // end For Scene Loop
-       // Put on SeperateThread
-        availableCompList.setEnabled(true);
-        // loadingProgressBar.setVisible(false);
-    return mapScenes;
-    }
-
-    Map<SimComponent,BranchGroup> loadedScenes;
-    public Map<SimComponent,BranchGroup> load3dScenesPerModule(SimModule simModule,List<SimComponent> listed) {
-        // get All components and set the 3dscenes For EachComponent in a Map<SimComponent,Scene>!
-        
-        compScene.clear();
-        availableCompList.setEnabled(false);
-     List<SimComponent> components = simModule.getComponents();        
-        
-      
-        return SceneLize(listed);
-    }
-   
-    
-
-    public Map<SimComponent, Scene> getCompScene() {
-        return compScene;
-    }
-
-    public void setCompScene(Map<SimComponent, Scene> compScene) {
-        this.compScene = compScene;
-    }
-  
+ 
     private void moduleComboItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_moduleComboItemStateChanged
         
         SimModule tempSimModule;
@@ -1375,17 +1357,17 @@ public class SimView extends javax.swing.JFrame implements Observer {
                     if (tempSimModule.getComponents().size() > 0 && controller.getState() != null) {
                         
                         components = tempSimModule.getComponents();
-                     
-                       ProgressWorker p = new ProgressWorker(loadingProgressBar, components.size(),availableCompList);
-                       p.execute();
-                      loadedScenes=load3dScenesPerModule(tempSimModule,components);
-                      controller.setScenesAll(loadedScenes);
+                       //ProgressWorker p = new ProgressWorker(loadingProgressBar, components,availableCompList);
+                       //p.execute();
+              //loadedScenes=load3dScenesPerModule(tempSimModule,components);
+                           // controller.setScenesAll(p.get());
+                      
                         controller.setClearAction(true);
                         controller.setEmptyPlacedComponent(false);
                         defaultListModelAvailable.clear();
                         defaultListModelUsed.clear();
                          //add Elements
-                        availableCompList.setEnabled(false);
+                        //availableCompList.setEnabled(false);
                         for (int i = 0; i <components.size(); i++) {
                             defaultListModelAvailable.addElement(components.get(i));
 
@@ -2753,19 +2735,26 @@ class ComponentDrag extends MouseAdapter implements MouseListener {
                                 }
 
                             }
-                            // degugM
-                     
-          threedFrame = new ViewFor3d(new ArrayList<SimComponent>(listofCorrectlyPlaced),new HashMap<SimComponent, BranchGroup>(dragController.getScenesAll()));
-              
-                            Thread jmeThread = new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    threedFrame.setLocationRelativeTo(null);
-                                   threedFrame.setVisible(true);
-
-                                }
-                            });
-                            jmeThread.start();
+                            
+          // call this libgdx test class
+     LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
+      cfg.title = "Model Tutorial";    
+      cfg.width = 640;
+      cfg.height = 480;
+     cfg.forceExit = false;
+     new LwjglApplication(new ModelTutorial(listofCorrectlyPlaced), cfg);
+		
+//          threedFrame = new ViewFor3d(new ArrayList<SimComponent>(listofCorrectlyPlaced),new HashMap<SimComponent, BranchGroup>(dragController.getScenesAll()));
+//              
+//                            Thread jmeThread = new Thread(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    threedFrame.setLocationRelativeTo(null);
+//                                   threedFrame.setVisible(true);
+//
+//                                }
+//                            });
+//                            jmeThread.start();
 
 //                            dragFrame.repaint();
 

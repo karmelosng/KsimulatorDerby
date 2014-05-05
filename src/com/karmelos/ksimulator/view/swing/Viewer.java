@@ -15,36 +15,42 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.utils.Array;
-import com.google.gwt.dom.client.Style;
 import com.karmelos.ksimulator.model.SimComponent;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JOptionPane;
-import org.lwjgl.LWJGLException;
-import org.lwjgl.opengl.Display;
  
-public class ModelTutorial implements ApplicationListener {
+public class Viewer implements ApplicationListener {
    ModelBatch modelBatch;
    Environment environment;
    PerspectiveCamera camera;
    AssetManager assets;
-   CameraInputController cameraController;
- 
+   CameraInputController cameraController; 
    int screenWidth;
    int screenHeight;
    List<SimComponent> listing;
+    List<SimComponent> placed;
    Array<ModelInstance> instances = new Array<ModelInstance>();
-    
+   Map<SimComponent,ModelInstance> modelStash=new HashMap<SimComponent, ModelInstance>();
+    private boolean toShow =true;
    
-   public ModelTutorial(List<SimComponent> listed){
+   public Viewer(boolean show,List<SimComponent> listed){
       
        assets = new AssetManager();
        listing = listed;
-      
+      toShow = show;
    }
+
+    public List<SimComponent> getPlaced() {
+        return placed;
+    }
+
+    public void setPlaced(List<SimComponent> placed) {
+        this.placed = placed;
+    }
    
 
    @Override
@@ -69,18 +75,32 @@ public class ModelTutorial implements ApplicationListener {
       cameraController = new CameraInputController(camera);
       Gdx.input.setInputProcessor(cameraController);
  
-      // Create an asset manager that lets us dispose all assets at once
+      /// Create an asset manager that lets us dispose all assets at once
         //loadAllScenes(listing); 
-       for(int i=0;i<listing.size();i++){
-          assets.load("data/obj_"+listing.get(i).getId()+".g3db",Model.class);
-          assets.finishLoading();
-         }
+       if(toShow){
+//                for(int i=1;i<4;i++){
+//                  assets.load("data/obj_"+i+".g3db",Model.class);
+//
+//                 }  assets.finishLoading();
+//              // Create an instance of our crate model and put it in an array
+//               for(int i=1;i<4;i++){
+//                  Model model = assets.get("data/obj_"+i+".g3db", Model.class);
+//              ModelInstance inst = new ModelInstance(model);
+//              instances.add(inst);
+//                 }
+       }
+       else{
+       // just load ModelInstances
+           for(int i=0;i<listing.size();i++){
+          assets.load("data/obj_"+listing.get(i).getId()+".g3db",Model.class);        
+         }  assets.finishLoading();
       // Create an instance of our crate model and put it in an array
        for(int i=0;i<listing.size();i++){
           Model model = assets.get("data/obj_"+listing.get(i).getId()+".g3db", Model.class);
       ModelInstance inst = new ModelInstance(model);
-      instances.add(inst);
+         modelStash.put(listing.get(i), inst);
          }
+       }
      
  
       // Set up environment with simple lighting
@@ -99,6 +119,7 @@ public class ModelTutorial implements ApplicationListener {
  
    @Override
    public void render() {
+      if(toShow){
       // Respond to user events and update the camera
       cameraController.update();
  
@@ -109,10 +130,23 @@ public class ModelTutorial implements ApplicationListener {
       // Draw all model instances using the camera
 
       modelBatch.begin(camera);
-      modelBatch.render(instances, environment);
+      modelBatch.render(convertMapToList(modelStash, getPlaced()), environment);
       modelBatch.end();
+      }
+      else{
+      System.out.print("sfasdfdsf");
+      }
    }
- 
+   public Array<ModelInstance> convertMapToList(Map<SimComponent,ModelInstance> mI,List<SimComponent> list){
+     Array<ModelInstance> instances = new Array<ModelInstance>();
+       Iterator<SimComponent> iterator = list.iterator();
+       while(iterator.hasNext()){
+        SimComponent sC = iterator.next();
+         ModelInstance get = mI.get(sC);
+         instances.add(get);
+       }
+   return instances;
+   }
    @Override
    public void resize(int width, int height) {
       // Update screen dimensions
@@ -124,6 +158,14 @@ public class ModelTutorial implements ApplicationListener {
       camera.viewportHeight = height;
       camera.update(true);
    }
+
+    public boolean isToShow() {
+        return toShow;
+    }
+
+    public void setToShow(boolean toShow) {
+        this.toShow = toShow;
+    }
  
    @Override
    public void pause() {
@@ -132,7 +174,5 @@ public class ModelTutorial implements ApplicationListener {
    @Override
    public void resume() {
    }
-
-  
 
 }

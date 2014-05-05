@@ -1,4 +1,4 @@
-package com.karmelos.ksimulator.controller;
+ package com.karmelos.ksimulator.controller;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
@@ -14,6 +14,7 @@ import com.karmelos.ksimulator.model.SimPoint;
 import com.karmelos.ksimulator.model.SimState;
 import com.karmelos.ksimulator.model.SimUser;
 import com.karmelos.ksimulator.model.SimStateNull;
+import com.karmelos.ksimulator.view.swing.Viewer;
 import com.karmelos.ksimulator.view.swing.SimView;
 import java.awt.Point;
 import java.net.HttpURLConnection;
@@ -30,7 +31,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
-import javax.media.j3d.BranchGroup;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -54,6 +55,7 @@ public class SimController {
     //Entity Manager for Server Access
     private EntityManager entityManagerServer;
     private EntityManagerFactory entityManagerfactoryServer;
+    private Viewer modelTutorial;
     public static boolean serverAvailablity = false;
     private SimState state;
     private SimStateNull dummyState;
@@ -71,7 +73,7 @@ public class SimController {
     private static String baseUrl = "jdbc:mysql://host:3306/ksimulator?zeroDateTimeBehavior=convertToNull";
     private boolean firstSave=true;
     private List<SimComponent> immediatePlacedComponentBeforeSave= new LinkedList<SimComponent>();
-    private Map<SimComponent,ModelInstance> scenesAll= null;;
+    private AssetManager assetCopy;
     public SimController() {
         // if starttSession is true. means a session has started, else dunmmystate
         dummyState = new SimStateNull();
@@ -83,13 +85,21 @@ public class SimController {
         instantiateServerEntityManager();
 
     }
-   
-    public Map<SimComponent,ModelInstance> getScenesAll() {
-        return scenesAll;
+
+    public Viewer getModelTutorial() {
+        return modelTutorial;
     }
 
-    public void setScenesAll(Map<SimComponent,ModelInstance> scenesAll) {
-        this.scenesAll = scenesAll;
+    public void setModelTutorial(Viewer modelTutorial) {
+        this.modelTutorial = modelTutorial;
+    }
+
+    public AssetManager getAssetCopy() {
+        return assetCopy;
+    }
+
+    public void setAssetCopy(AssetManager assetCopy) {
+        this.assetCopy = assetCopy;
     }
 
     public boolean isLoginClear() {

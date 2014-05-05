@@ -1,8 +1,11 @@
 package com.karmelos.ksimulator.view.swing;
 
 //package com.karmelos.ksimulator.view.swing;
+import com.badlogic.gdx.Files;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.tests.utils.GdxTest;
 import com.karmelos.ksimulator.controller.SimController;
@@ -103,6 +106,7 @@ public class SimView extends javax.swing.JFrame implements Observer {
     private static final Logger LOGGER = Logger.getLogger(SimView.class.getName());
     private SimController controller;
     private JTextField userName;
+    private AssetManager assets;
     private JPasswordField password;
     private PopUpFrame popupFrame;//JFrame to add panels for pop up menus        
     private PrinterPanel printerPanel; //Print WorkSpace&3Dview option panel
@@ -125,14 +129,13 @@ public class SimView extends javax.swing.JFrame implements Observer {
     private ComponentDrag componentDrag;
     private SimComponent highlightedComponent;
     private ButtonGroup themeButtonGroup;
-    private ModelTutorial modeltest;
-   
+    private Viewer modeltest;   
     List<JLabel> listOfLabels;
     private int moduleIndexselected;
     private static SimView sv;
     private ChangeUserDialog cuDialog;
     private String display;
-    
+     Viewer n ;
 
     /**
      * Creates new form SimView
@@ -1357,11 +1360,18 @@ public class SimView extends javax.swing.JFrame implements Observer {
                     if (tempSimModule.getComponents().size() > 0 && controller.getState() != null) {
                         
                         components = tempSimModule.getComponents();
-                       //ProgressWorker p = new ProgressWorker(loadingProgressBar, components,availableCompList);
-                       //p.execute();
-              //loadedScenes=load3dScenesPerModule(tempSimModule,components);
-                           // controller.setScenesAll(p.get());
-                      
+                        
+                        //PreLoading happens 
+                        n=new Viewer(false,components);
+                       n.setToShow(false);
+                    LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
+                        cfg.title ="3D-VIEWER ";    
+                        cfg.width = 640;
+                        cfg.height = 480;
+                       cfg.forceExit = false;
+                       cfg.addIcon("data/kicon.png", Files.FileType.Internal);
+                      LwjglApplication load= new LwjglApplication(n, cfg);
+                           controller.setModelTutorial(n);
                         controller.setClearAction(true);
                         controller.setEmptyPlacedComponent(false);
                         defaultListModelAvailable.clear();
@@ -2516,7 +2526,7 @@ class ComponentDrag extends MouseAdapter implements MouseListener {
     SimComponent corrrectlyPlacedComponents;
     Map<SimComponent, SimPoint> placedComp;
     List<SimComponent> listofCorrectlyPlaced = null;
-    ViewFor3d threedFrame = null;
+  
 
     public ComponentDrag(GridPanel panel, SimController lsc, JFrame frame) {
         multiDraggedComponents = new ArrayList<SimComponent>();
@@ -2736,28 +2746,18 @@ class ComponentDrag extends MouseAdapter implements MouseListener {
 
                             }
                             
-          // call this libgdx test class
-     LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
-      cfg.title = "Model Tutorial";    
-      cfg.width = 640;
-      cfg.height = 480;
-     cfg.forceExit = false;
-     new LwjglApplication(new ModelTutorial(listofCorrectlyPlaced), cfg);
-		
-//          threedFrame = new ViewFor3d(new ArrayList<SimComponent>(listofCorrectlyPlaced),new HashMap<SimComponent, BranchGroup>(dragController.getScenesAll()));
-//              
-//                            Thread jmeThread = new Thread(new Runnable() {
-//                                @Override
-//                                public void run() {
-//                                    threedFrame.setLocationRelativeTo(null);
-//                                   threedFrame.setVisible(true);
-//
-//                                }
-//                            });
-//                            jmeThread.start();
-
-//                            dragFrame.repaint();
-
+              //Codes to run The viewer
+                        Viewer mT=  dragController.getModelTutorial();
+                        mT.setToShow(true);
+                        mT.setPlaced(listofCorrectlyPlaced);
+                LwjglApplicationConfiguration cfgt = new LwjglApplicationConfiguration();
+                   cfgt.title = "3D-VIEWER";    
+                   cfgt.width = 640;
+                   cfgt.height = 480;
+                  cfgt.forceExit = false;
+                  cfgt.addIcon("data/kicon.png", Files.FileType.Internal);
+                            LwjglApplication lwjglApplication = new LwjglApplication(mT, cfgt);
+                         
                         } else if (dragController.getState().getAvailableComponents().isEmpty()) {
                             if (dragController.checkSameSimPoints()) {
 

@@ -1,0 +1,10 @@
+----------------------------------------------------------------
+Thu Jul 17 10:39:22 GMT+01:00 2014:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.8.1.2 - (1095077): instance a816c00e-0147-43b0-c055-0000001dee08 
+on database directory C:\Users\Ables\Documents\NetBeansProjects\Ksimulator3d\Ksimulator3d\ksim  with class loader sun.misc.Launcher$AppClassLoader@1bf043c0 
+Loaded from file:/C:/Users/Ables/Documents/NetBeansProjects/Ksimulator3d/Ksimulator3d/dist/lib/derby.jar
+java.vendor=Sun-Oracle Java licensee: Excelsior LLC
+java.runtime.version=1.7.0_40-b00
+user.dir=C:\Users\Ables\Documents\NetBeansProjects\Ksimulator3d\Ksimulator3d
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''

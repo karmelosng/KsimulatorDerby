@@ -3,8 +3,6 @@ package com.karmelos.ksimulator.view.swing;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g3d.Environment;
@@ -20,10 +18,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
  
-public class Viewer implements ApplicationListener {
+public class View implements ApplicationListener {
    ModelBatch modelBatch;
    Environment environment;
    PerspectiveCamera camera;
@@ -31,41 +27,27 @@ public class Viewer implements ApplicationListener {
    CameraInputController cameraController; 
    int screenWidth;
    int screenHeight;
-   List<SimComponent> listing;
-    List<SimComponent> placed;
+    List<SimComponent> listing;
    Array<ModelInstance> instances = new Array<ModelInstance>();
    Map<SimComponent,ModelInstance> modelStash=new HashMap<SimComponent, ModelInstance>();
     private boolean toShow =true;
    
-   public Viewer(boolean show,List<SimComponent> listed){
+   public View(  List<SimComponent> listed){
       
        assets = new AssetManager();
-       listing = listed;
-      toShow = show;
+    listing = listed;
+//      toShow = show;
    }
 
-    public List<SimComponent> getPlaced() {
-        return placed;
-    }
-
-    public void setPlaced(List<SimComponent> placed) {
-        this.placed = placed;
-    }
-   
+    
 
    @Override
-   public void create() {
-       
-      // Get screen dimensions
-     // screenWidth = Gdx.graphics.getWidth();
-     // screenHeight = Gdx.graphics.getHeight();
- 
+   public void create() {   
       // Create ModelBatch that will render all models using a camera
-      modelBatch = new ModelBatch();
- 
+      modelBatch = new ModelBatch(); 
       // Create a camera and point it to our model
-      camera = new PerspectiveCamera(75, screenWidth, screenHeight);
-      camera.position.set(0,0, 1000);
+      camera = new PerspectiveCamera(85, 500, 500);
+      camera.position.set(1,1, 1000);
       camera.lookAt(0, 0, 0);
        camera.near = 500f;
       camera.far =2000f;
@@ -74,68 +56,52 @@ public class Viewer implements ApplicationListener {
       // Create the generic camera input controller to make the app interactive
       cameraController = new CameraInputController(camera);
       Gdx.input.setInputProcessor(cameraController);
- 
+     
       /// Create an asset manager that lets us dispose all assets at once
-        //loadAllScenes(listing); 
-       if(toShow){
-//                for(int i=1;i<4;i++){
-//                  assets.load("data/obj_"+i+".g3db",Model.class);
-//
-//                 }  assets.finishLoading();
-//              // Create an instance of our crate model and put it in an array
-//               for(int i=1;i<4;i++){
-//                  Model model = assets.get("data/obj_"+i+".g3db", Model.class);
-//              ModelInstance inst = new ModelInstance(model);
-//              instances.add(inst);
-//                 }
-       }
-       else{
-       // just load ModelInstances
-           for(int i=0;i<listing.size();i++){
-          assets.load("data/obj_"+listing.get(i).getId()+".g3db",Model.class);        
-         }  assets.finishLoading();
-      // Create an instance of our crate model and put it in an array
-       for(int i=0;i<listing.size();i++){
-          Model model = assets.get("data/obj_"+listing.get(i).getId()+".g3db", Model.class);
-      ModelInstance inst = new ModelInstance(model);
-         modelStash.put(listing.get(i), inst);
-         }
-       }
+      
+        for(int i=0;i<listing.size();i++){
+                  assets.load("data/obj_"+listing.get(i).getId()+".g3db",Model.class);
+
+                 }  assets.finishLoading();
+              // Create an instance of our crate model and put it in an array
+               for(int i=0;i<listing.size();i++){
+                  Model model = assets.get("data/obj_"+listing.get(i).getId()+".g3db", Model.class);
+              ModelInstance inst = new ModelInstance(model);
+              instances.add(inst);
+                 }
+     
      
  
       // Set up environment with simple lighting
       environment = new Environment();
       environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
-      environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -0.8f, 0.3f, -1f));
+      environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
+        environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, 1f, 0.8f,-0.2f));
+  
    }
  
    @Override
    public void dispose() {
       // Release all resources
-     modelBatch.dispose();
+       environment.clear();
+       assets.dispose();
+      modelBatch.dispose();
       instances.clear();
-      assets.dispose();
+ 
    }
  
    @Override
    public void render() {
-      if(toShow){
-      // Respond to user events and update the camera
-      cameraController.update();
- 
+       // Respond to user events and update the camera
+      cameraController.update(); 
       // Clear the viewport
      // Gdx.gl.glViewport(0, 0, screenWidth, screenHeight);
      Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
- 
+     Gdx.gl.glClearColor(0.55f, 0, 0, 1.0f);
       // Draw all model instances using the camera
-
       modelBatch.begin(camera);
-      modelBatch.render(convertMapToList(modelStash, getPlaced()), environment);
-      modelBatch.end();
-      }
-      else{
-      System.out.print("sfasdfdsf");
-      }
+      modelBatch.render(instances, environment);
+      modelBatch.end();     
    }
    public Array<ModelInstance> convertMapToList(Map<SimComponent,ModelInstance> mI,List<SimComponent> list){
      Array<ModelInstance> instances = new Array<ModelInstance>();
@@ -176,3 +142,5 @@ public class Viewer implements ApplicationListener {
    }
 
 }
+  
+

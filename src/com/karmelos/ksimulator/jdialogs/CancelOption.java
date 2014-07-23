@@ -24,11 +24,12 @@ public class CancelOption extends JDialog{
 JPanel panel1,panel2;
 JButton cancelButton;
 private String label1;
+
 JLabel label;
 ImageIcon icon = new ImageIcon(getClass().getResource("/com/karmelos/ksimulator/2ndbaricon/kicon.png"));
     public CancelOption(Frame owner, String title) {
         super(owner, title);
-     
+    
     }
     
     public void showDialog(){

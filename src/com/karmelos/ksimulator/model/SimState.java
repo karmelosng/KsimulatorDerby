@@ -149,6 +149,14 @@ public class SimState extends Observable implements Serializable {
 
     @Override
     public String toString() {
-        return   description +  "\t,Time Saved=" + savedAt;
+        String paddedString;
+        int lengthOfString = description.trim().length();
+        if(lengthOfString >=20){ paddedString = description.substring(0,15);}
+        else{
+           int pad = 20-lengthOfString;
+            paddedString =String.format("%-"+pad+"s", description);
+        
+        }
+        return  paddedString+"||"  + savedAt;
     }
 }

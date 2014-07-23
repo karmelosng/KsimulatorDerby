@@ -33,8 +33,7 @@ public class StatePanel extends javax.swing.JPanel {
      SimState[] fetchSessions = sc.fetchSessions(false);
         for(int i=0;i<fetchSessions.length;i++)
      {
-     stateListModel.addElement(fetchSessions[i]);
-     
+     stateListModel.addElement(fetchSessions[i]);     
      }
     
     }
@@ -152,8 +151,7 @@ public class StatePanel extends javax.swing.JPanel {
            // start simulation
            // getwrk().startSimulation();  
          // get Selected SimState and create new session
-            Object[] tempObject = new Object[2];
-      
+            Object[] tempObject = new Object[2];   
        
             controlState.setId(tempState.getId());
             controlState.setDescription(tempState.getDescription());
@@ -172,10 +170,7 @@ public class StatePanel extends javax.swing.JPanel {
             getwrk().reloadListsOnOpen(tempState.getAvailableComponents(),tempState.getPlacedComponents());
            getwrk().getController().setOpenDirective(true);
             getwrk().getRecentMenu().setEnabled(false);
-           
-                       
-            
-            
+ 
         }
         else
         {

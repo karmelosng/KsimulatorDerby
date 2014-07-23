@@ -285,8 +285,13 @@ public class SavePanel extends javax.swing.JPanel {
                 wrk.getController().setDropOccured(false);
                 wrk.getController().setFirstSave(false);
                  wrk.getController().afterFirstSaveReservoirCollector();
+                // wrk.getController().setKeepOpen(rwStats);
                 wrk.repaint();
-
+                if(wrk.getController().isInstigClear()  ){
+                  wrk.getController().instigateClear();
+                }
+                      
+           
 
             }//end inner if
             

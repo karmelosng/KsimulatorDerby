@@ -4,9 +4,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.karmelos.ksimulator.exception.SimException;
 import com.karmelos.ksimulator.model.Settings;
-
 import java.util.List;
-
 import com.karmelos.ksimulator.model.SimComponent;
 import com.karmelos.ksimulator.model.SimModule;
 import com.karmelos.ksimulator.model.SimModuleType;
@@ -14,7 +12,7 @@ import com.karmelos.ksimulator.model.SimPoint;
 import com.karmelos.ksimulator.model.SimState;
 import com.karmelos.ksimulator.model.SimUser;
 import com.karmelos.ksimulator.model.SimStateNull;
-import com.karmelos.ksimulator.view.swing.Viewer;
+
 import com.karmelos.ksimulator.view.swing.SimView;
 import java.awt.Point;
 import java.net.HttpURLConnection;
@@ -39,23 +37,18 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.swing.JLabel;
 
-
-
-
-
 // Minor Change in Code: Creates Two Entity Manangers ,One to retrieve
 // components and the other for session saving or retrieval
 // Ping Server prior to saving to check Server Status, if it fails save to local hence save session to server
 public class SimController {
     //Entity Manager for local System
-
+ 
     @PersistenceContext(unitName = "SimulatorPU")
     private EntityManager entityManager;
     private EntityManagerFactory entityManagerfactory;
     //Entity Manager for Server Access
     private EntityManager entityManagerServer;
     private EntityManagerFactory entityManagerfactoryServer;
-    private Viewer modelTutorial;
     public static boolean serverAvailablity = false;
     private SimState state;
     private SimStateNull dummyState;
@@ -66,14 +59,16 @@ public class SimController {
     private boolean gridPainter = true;
     private boolean clearAction = false;
     private boolean LoginClear =false;
+    private boolean instigClear = false;
     private  ResultSet settingsProperties;
     private List<JLabel> listofAttachedThemes;
     private Map<String,String> mapOfThemes= new HashMap<String, String>();
-    // url format
-    private static String baseUrl = "jdbc:mysql://host:3306/ksimulator?zeroDateTimeBehavior=convertToNull";
+    // url formatjdbc:derby://localhost:1527/ksimulator
+    private static String baseUrl = "jdbc:derby://host:1527/ksimulator";
     private boolean firstSave=true;
     private List<SimComponent> immediatePlacedComponentBeforeSave= new LinkedList<SimComponent>();
     private AssetManager assetCopy;
+    private Map<SimComponent, ModelInstance>  preLoadedModel= new HashMap<SimComponent,ModelInstance>();
     public SimController() {
         // if starttSession is true. means a session has started, else dunmmystate
         dummyState = new SimStateNull();
@@ -85,15 +80,34 @@ public class SimController {
         instantiateServerEntityManager();
 
     }
+       public void instigateClear(){
+   // This is to instigate Clear and bringUp an Open Tab
+           Object[] tempObject = new Object[2];  
+        tempObject[0] = "moveOpenphase";
+        tempObject[1] = simUser;
+        dummyState.setChanged();
+        dummyState.notifyObservers(tempObject);
+   
+   
+   }
 
-    public Viewer getModelTutorial() {
-        return modelTutorial;
+    public boolean isInstigClear() {
+        return instigClear;
     }
 
-    public void setModelTutorial(Viewer modelTutorial) {
-        this.modelTutorial = modelTutorial;
+    public void setInstigClear(boolean instigClear) {
+        this.instigClear = instigClear;
+    }
+       
+    public Map<SimComponent, ModelInstance> getPreLoadedModel() {
+        return preLoadedModel;
     }
 
+    public void setPreLoadedModel(Map<SimComponent, ModelInstance> preLoadedModel) {
+  
+        this.preLoadedModel = preLoadedModel;
+    }
+    
     public AssetManager getAssetCopy() {
         return assetCopy;
     }
@@ -101,6 +115,8 @@ public class SimController {
     public void setAssetCopy(AssetManager assetCopy) {
         this.assetCopy = assetCopy;
     }
+
+  
 
     public boolean isLoginClear() {
         return LoginClear;
@@ -931,7 +947,7 @@ public class SimController {
      Iterator<Settings> setup;
       try { 
              Query q = entityManager.createQuery("select o from Settings o where o.keyword = :mtid ");
-            q.setParameter("mtid", "currentTheme");
+            q.setParameter("mtid", "currenttheme");
             //convert list to SimModule[] and return
             setup = q.getResultList().iterator();
         } finally {
